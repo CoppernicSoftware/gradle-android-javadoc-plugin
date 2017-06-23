@@ -8,6 +8,7 @@ buildscript {
         classpath 'com.gradle.publish:plugin-publish-plugin:0.9.1'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
         classpath 'com.vanniktech:gradle-android-junit-jacoco-plugin:0.4.0'
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.0.0"
     }
 }
 
@@ -75,4 +76,38 @@ artifacts {
     archives sourcesJar
 }
 
-apply from: file('gradle/gradle-mvn-push.gradle')
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        art(MavenPublication) {
+            groupId = GROUP
+            version = VERSION_NAME
+            artifactId = project.name
+
+            artifact jar
+        }
+    }
+}
+
+apply plugin: 'com.jfrog.artifactory'
+
+artifactory {
+    contextUrl = "http://arti-01:8081/artifactory"
+    publish {
+        repository {
+            repoKey = "plugins-release-local"
+            username = project.artifactory_user
+            password = project.artifactory_password
+            maven = true
+        }
+        defaults {
+            publications('art')
+            publishBuildInfo = false
+        }
+    }
+}
+
+project.artifactoryPublish.dependsOn(['build'])
+
+//apply from: file('gradle/gradle-mvn-push.gradle')
