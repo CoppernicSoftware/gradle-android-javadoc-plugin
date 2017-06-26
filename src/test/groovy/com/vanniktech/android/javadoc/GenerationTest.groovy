@@ -142,6 +142,22 @@ class GenerationTest {
         assert project.generateYeahJavadocJar instanceof Jar
     }
 
+    @Test
+    public void changeJarBaseName() {
+        doNotRunOnTravis()
+        withAndroidAppProject()
+
+        project.androidJavadoc.jarBaseName { project, variant ->
+            "${project.name}"
+        }
+
+        project.evaluate()
+
+        assert project.generateReleaseJavadocJar.getBaseName() == "project"
+        assert project.generateReleaseJavadocJar.getArchiveName() == "project-javadoc.jar"
+
+    }
+
     private void withAndroidAppProject() {
         project.plugins.apply('com.android.application')
         generation.apply(project)

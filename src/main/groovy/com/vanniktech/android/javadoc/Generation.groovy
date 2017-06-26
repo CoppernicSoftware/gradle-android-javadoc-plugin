@@ -106,7 +106,7 @@ class Generation implements Plugin<Project> {
             classifier = 'javadoc'
             from getJavadocFolder(project, variant)
             into ""
-            baseName = "${project.name}-${project.android.defaultConfig.versionName}-${getBaseTaskName(project, variant)}"
+            baseName = getJavadocJarBaseName(project, variant)
             extension = "jar"
             manifest = null
         }
@@ -137,6 +137,10 @@ class Generation implements Plugin<Project> {
 
     private static String genJavadocJarTaskName(final Project project, variant) {
         return "${genJavadocTaskName(project, variant)}Jar"
+    }
+
+    private static String getJavadocJarBaseName(final Project project, variant) {
+        return "${project.androidJavadoc.jarBaseName(project, variant)}"
     }
 
     private static File getJavadocFolder(final Project project, variant) {
