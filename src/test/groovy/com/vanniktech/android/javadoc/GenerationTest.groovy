@@ -148,13 +148,13 @@ class GenerationTest {
         withAndroidAppProject()
 
         project.androidJavadoc.jarBaseName { project, variant ->
-            "${project.name}-javadoc.jar"
+            "${project.name}"
         }
 
         project.evaluate()
 
-        assert project.generateReleaseJavadocJar.getBaseName() == "project-javadoc.jar"
-
+        assert project.generateReleaseJavadocJar.getBaseName() == "project"
+        assert project.generateReleaseJavadocJar.getArchiveName() == "project-javadoc.jar"
     }
 
     private void withAndroidAppProject() {
