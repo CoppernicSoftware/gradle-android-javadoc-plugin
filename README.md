@@ -72,19 +72,18 @@ androidJavadoc {
                       }
                   }
 
-    // taskNameTransformer takes a closure to customise the task name. 
-    // Task name pattern is "generate${taskNameTransformer(variant).capitalize()}Javadoc" 
+    // taskNameTransformer takes a closure to customise the task name.
+    // Task name pattern is "generate${taskNameTransformer(variant).capitalize()}Javadoc"
     // This is the default implementation :
     taskNameTransformer { variant ->
         variant.name
     }
-    
+
     // outputDir return the documentation output dir
-    // Default implementation : 
+    // Default implementation :
     outputDir = { Project project ->
         "${project.buildDir}/docs/javadoc/"
     }
-    
 }
 ```
 
