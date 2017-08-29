@@ -28,4 +28,11 @@ public class AndroidJavadocExtension {
     Closure outputDir = { Project project ->
         "${project.buildDir}/docs/javadoc/"
     }
+
+    /**
+     * Closure used for changing base name of javadoc archive file
+     */
+    Closure jarBaseName = { Project project, variant ->
+        "${project.name}-${project.android.defaultConfig.versionName}-${project.androidJavadoc.taskNameTransformer(variant).capitalize()}"
+    }
 }
