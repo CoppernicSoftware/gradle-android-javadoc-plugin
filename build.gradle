@@ -7,7 +7,7 @@ buildscript {
     dependencies {
         classpath 'com.gradle.publish:plugin-publish-plugin:0.9.1'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
-        classpath 'com.vanniktech:gradle-android-junit-jacoco-plugin:0.4.0'
+        classpath 'com.vanniktech:gradle-android-junit-jacoco-plugin:0.8.0'
     }
 }
 
@@ -24,7 +24,7 @@ repositories {
 dependencies {
     compile gradleApi()
     compile localGroovy()
-    compile 'com.android.tools.build:gradle:2.3.2'
+    compile 'com.android.tools.build:gradle:2.3.3'
 
     testCompile 'junit:junit:4.12'
 }
@@ -49,7 +49,7 @@ pluginBundle {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.0'
+    gradleVersion = '4.1'
     distributionType = Wrapper.DistributionType.ALL
 }
 
