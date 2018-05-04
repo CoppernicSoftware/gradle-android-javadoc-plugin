@@ -13,8 +13,8 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.JavadocMemberLevel
 
-public class Generation implements Plugin<Project> {
-    Logger logger;
+class Generation implements Plugin<Project> {
+    Logger logger
 
     @Override
     void apply(final Project project) {
@@ -29,14 +29,14 @@ public class Generation implements Plugin<Project> {
             project.allprojects { Project p ->
                 // Do not throw exception anymore. We want to support big projects with a lot of modules that not all of them are android.
                 if (p.hasProperty('android')) {
-                    applyPluginToProject(p);
+                    applyPluginToProject(p)
                 } else {
                     logger.info "${p.name} is not an android project - plugin is not applied"
                 }
             }
         } else {
             if (project.hasProperty('android')) {
-                applyPluginToProject(project);
+                applyPluginToProject(project)
             } else {
                 logger.info "${project.name} is not an android project - plugin is not applied"
             }
@@ -45,9 +45,11 @@ public class Generation implements Plugin<Project> {
 
     private void applyPluginToProject(Project project) {
         if (project.android.hasProperty('applicationVariants')) {
+            //FIXME
             createRootTask(project)
             addJavaTaskToProjectWith(project, (DomainObjectCollection<BaseVariant>) project.android.applicationVariants)
         } else if (project.android.hasProperty('libraryVariants')) {
+            //FIXME
             createRootTask(project)
             addJavaTaskToProjectWith(project, (DomainObjectCollection<BaseVariant>) project.android.libraryVariants)
         } else {
@@ -149,20 +151,20 @@ public class Generation implements Plugin<Project> {
         return "${project.androidJavadoc.taskNameTransformer(variant).capitalize()}"
     }
 
-    public static String genJavadocTaskName(final Project project, variant) {
+    private static String genJavadocTaskName(final Project project, variant) {
         return "generate${getBaseTaskName(project, variant)}Javadoc"
     }
 
-    public static String genDeleteTaskName(final Project project, variant) {
+    private static String genDeleteTaskName(final Project project, variant) {
         return "delete${getBaseTaskName(project, variant)}Javadoc"
     }
 
-    public static String genJavadocJarTaskName(final Project project, variant) {
+    private static String genJavadocJarTaskName(final Project project, variant) {
         return "${genJavadocTaskName(project, variant)}Jar"
     }
 
     private static File getJavadocFolder(final Project project, variant) {
-        return new File(project.androidJavadoc.outputDir(project), "${project.androidJavadoc.taskNameTransformer(variant)}")
+        return new File("${project.androidJavadoc.outputDir(project)}", "${project.androidJavadoc.taskNameTransformer(variant)}")
     }
 
     private static boolean isRoot(Project project){
