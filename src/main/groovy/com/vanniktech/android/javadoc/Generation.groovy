@@ -34,7 +34,13 @@ class Generation implements Plugin<Project> {
         if (project.hasProperty('android')) {
             applyPluginToProject(project)
         } else {
-            logger.info "${project.name} is not an android project - plugin is not applied"
+            // Waiting for android plugin to be applied
+            project.plugins.whenPluginAdded { Plugin plugin ->
+                if (project.plugins.hasPlugin("com.android.library")
+                        || project.plugins.hasPlugin("com.android.application")) {
+                    applyPluginToProject(project)
+                }
+            }
         }
     }
 
