@@ -1,21 +1,10 @@
-buildscript {
-  repositories {
-    jcenter()
-    maven { url "https://plugins.gradle.org/m2/" }
-  }
-
-  dependencies {
-    classpath 'com.gradle.publish:plugin-publish-plugin:0.9.9'
-    classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
-    classpath 'com.vanniktech:gradle-android-junit-jacoco-plugin:0.11.0'
-  }
+plugins {
+  id "groovy"
+  id "java"
+  id 'com.gradle.plugin-publish' version '0.9.9'
+  id "com.vanniktech.android.junit.jacoco" version "0.11.0"
+  id "fr.coppernic.versioning" version "3.1.2"
 }
-
-apply plugin: 'groovy'
-apply plugin: 'java'
-apply plugin: 'com.github.ben-manes.versions'
-apply plugin: 'com.gradle.plugin-publish'
-apply plugin: 'com.vanniktech.android.junit.jacoco'
 
 repositories {
   jcenter()
@@ -41,7 +30,7 @@ pluginBundle {
 
   plugins {
     androidJavadoc {
-      id = 'com.vanniktech.android.javadoc'
+      id = 'fr.coppernic.android.javadoc'
       displayName = POM_NAME
       tags = ['gradle', 'android', 'javadoc', 'app module', 'library module']
       description = POM_DESCRIPTION
@@ -51,6 +40,7 @@ pluginBundle {
 
 task wrapper(type: Wrapper) {
   gradleVersion = '4.5'
+  //noinspection UnnecessaryQualifiedReference
   distributionType = Wrapper.DistributionType.ALL
 }
 
@@ -69,13 +59,6 @@ task sourcesJar(type: Jar) {
   classifier = 'sources'
 }
 
-artifacts {
-  archives jar
-  archives groovydocJar
-  archives javadocJar
-  archives sourcesJar
-}
-
 test {
   environment "ANDROID_HOME", System.getenv("ANDROID_HOME")
   testLogging {
@@ -85,5 +68,3 @@ test {
     exceptionFormat "full"
   }
 }
-
-apply from: file('gradle/gradle-mvn-push.gradle')
