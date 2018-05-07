@@ -151,15 +151,15 @@ class Generation implements Plugin<Project> {
         return "${project.androidJavadoc.taskNameTransformer(variant).capitalize()}"
     }
 
-    private static String genJavadocTaskName(final Project project, variant) {
+    static String genJavadocTaskName(final Project project, variant) {
         return "generate${getBaseTaskName(project, variant)}Javadoc"
     }
 
-    private static String genDeleteTaskName(final Project project, variant) {
+    static String genDeleteTaskName(final Project project, variant) {
         return "delete${getBaseTaskName(project, variant)}Javadoc"
     }
 
-    private static String genJavadocJarTaskName(final Project project, variant) {
+    static String genJavadocJarTaskName(final Project project, variant) {
         return "${genJavadocTaskName(project, variant)}Jar"
     }
 
