@@ -14,6 +14,10 @@ import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.JavadocMemberLevel
 
 class Generation implements Plugin<Project> {
+
+    private static final String JAVADOC_TASK = "javadoc"
+    private static final String JAVADOC_JAR_TASK = "javadocJar"
+
     Logger logger
 
     @Override
@@ -25,31 +29,20 @@ class Generation implements Plugin<Project> {
 
         project.extensions.create("androidJavadoc", AndroidJavadocExtension)
 
-        if(isRoot(project)) {
-            project.allprojects { Project p ->
-                // Do not throw exception anymore. We want to support big projects with a lot of modules that not all of them are android.
-                if (p.hasProperty('android')) {
-                    applyPluginToProject(p)
-                } else {
-                    logger.info "${p.name} is not an android project - plugin is not applied"
-                }
-            }
+        // Do not apply in root project anymore. User will have to apply plugin manually in all child project.
+        // Like android does.
+        if (project.hasProperty('android')) {
+            applyPluginToProject(project)
         } else {
-            if (project.hasProperty('android')) {
-                applyPluginToProject(project)
-            } else {
-                logger.info "${project.name} is not an android project - plugin is not applied"
-            }
+            logger.info "${project.name} is not an android project - plugin is not applied"
         }
     }
 
     private void applyPluginToProject(Project project) {
         if (project.android.hasProperty('applicationVariants')) {
-            //FIXME
             createRootTask(project)
             addJavaTaskToProjectWith(project, (DomainObjectCollection<BaseVariant>) project.android.applicationVariants)
         } else if (project.android.hasProperty('libraryVariants')) {
-            //FIXME
             createRootTask(project)
             addJavaTaskToProjectWith(project, (DomainObjectCollection<BaseVariant>) project.android.libraryVariants)
         } else {
@@ -58,14 +51,22 @@ class Generation implements Plugin<Project> {
         }
     }
 
-    private static Task createRootTask(Project project){
-        project.task("javadoc") {
-            description = "Generates javadoc for ${project.name}"
-            group = 'Documentation'
+    private void createRootTask(Project project) {
+        if (project.tasks.findByPath(JAVADOC_TASK)) {
+            logger.debug "task $JAVADOC_TASK already exists"
+        } else {
+            project.task(JAVADOC_TASK) {
+                description = "Generates javadoc for ${project.name}"
+                group = 'Documentation'
+            }
         }
-        project.task("javadocJar", dependsOn: ['javadoc']) {
-            description = "Generates javadoc archive for ${project.name}"
-            group = 'Documentation'
+        if (project.tasks.findByPath(JAVADOC_JAR_TASK)) {
+            logger.debug "task $JAVADOC_JAR_TASK already exists"
+        } else {
+            project.task(JAVADOC_JAR_TASK, dependsOn: [JAVADOC_TASK]) {
+                description = "Generates javadoc archive for ${project.name}"
+                group = 'Documentation'
+            }
         }
     }
 
@@ -109,8 +110,11 @@ class Generation implements Plugin<Project> {
             destinationDir = getJavadocFolder(project, variant)
             source = variant.javaCompiler.source
 
-            ext.androidJar = "${project.android.sdkDirectory}/platforms/${project.android.compileSdkVersion}/android.jar"
-            classpath = project.files(variant.javaCompiler.classpath.files) + project.files(ext.androidJar)
+            // Fix issue : Error: Can not create variant 'android-lint' after configuration ': library: debugRuntimeElements' has been resolved
+            doFirst {
+                classpath = project.files(variant.javaCompile.classpath.files,
+                        project.android.getBootClasspath())
+            }
 
             if (JavaVersion.current().isJava8Compatible()) {
                 options.addStringOption('Xdoclint:none', '-quiet')

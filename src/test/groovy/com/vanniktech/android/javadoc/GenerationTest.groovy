@@ -1,5 +1,6 @@
 package com.vanniktech.android.javadoc
 
+import com.android.build.gradle.internal.SdkHandler
 import com.vanniktech.android.javadoc.extensions.AndroidJavadocExtension
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.javadoc.Javadoc
@@ -9,25 +10,28 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
+import org.junit.rules.TemporaryFolder
 
 import java.nio.file.Path
 import java.nio.file.Paths
 
 class GenerationTest {
     @Rule public ExpectedException expectedException = ExpectedException.none()
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder()
 
     def generation
     def project
 
     @Before
-    public void setUp() {
+    void setUp() {
         generation = new Generation()
         project = ProjectBuilder.builder().withName('project').build()
         copyManifest()
     }
 
     @Test
-    public void testNullProject() throws Exception {
+    void testNullProject() throws Exception {
         expectedException.expect(UnsupportedOperationException.class)
         expectedException.expectMessage('Project is null')
 
@@ -35,7 +39,7 @@ class GenerationTest {
     }
 
     @Test
-    public void testThatExtensionIsAdded() {
+    void testThatExtensionIsAdded() {
         project.plugins.apply('com.android.application')
         generation.apply(project)
 
@@ -46,7 +50,7 @@ class GenerationTest {
     }
 
     @Test
-    public void testNotAndroidProject() {
+    void testNotAndroidProject() {
         generation.apply(project)
 
         assert !project.hasProperty("generateReleaseJavadoc")
@@ -56,7 +60,7 @@ class GenerationTest {
     }
 
     @Test
-    public void testJavaProject() {
+    void testJavaProject() {
         project.plugins.apply('java')
         generation.apply(project)
 
@@ -67,7 +71,7 @@ class GenerationTest {
     }
 
     @Test
-    public void testAndroidAppProject() {
+    void testAndroidAppProject() {
         doNotRunOnTravis()
         withAndroidAppProject()
 
@@ -87,7 +91,7 @@ class GenerationTest {
 
 
     @Test
-    public void testAndroidLibraryProject() {
+    void testAndroidLibraryProject() {
         doNotRunOnTravis()
         withAndroidLibProject()
 
@@ -106,7 +110,7 @@ class GenerationTest {
     }
 
     @Test
-    public void filterVariant() {
+    void filterVariant() {
         doNotRunOnTravis()
         withAndroidAppProject()
 
@@ -123,7 +127,7 @@ class GenerationTest {
     }
 
     @Test
-    public void transformTaskName() {
+    void transformTaskName() {
         doNotRunOnTravis()
         withAndroidAppProject()
 
@@ -142,17 +146,28 @@ class GenerationTest {
     }
 
     private void withAndroidAppProject() {
-        project.plugins.apply('com.android.application')
+        applyAndroidPlugin('com.android.application')
         generation.apply(project)
-        project.android.compileSdkVersion 25
-        project.android.buildToolsVersion "25.0.2"
     }
 
     private void withAndroidLibProject() {
-        project.plugins.apply('com.android.library')
+        applyAndroidPlugin('com.android.library')
         generation.apply(project)
-        project.android.compileSdkVersion 25
-        project.android.buildToolsVersion "25.0.2"
+    }
+
+    private void applyAndroidPlugin(String plugin) {
+        //SdkHandler.setTestSdkFolder(temporaryFolder.newFolder())
+        project.plugins.apply(plugin)
+        project.android.compileSdkVersion 27
+        project.android.buildToolsVersion "27.0.3"
+        project.android.defaultConfig {
+            minSdkVersion 17
+            targetSdkVersion 27
+            versionCode 1
+            versionName "dev"
+
+            testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        }
     }
 
     private void copyManifest() {
@@ -166,7 +181,7 @@ class GenerationTest {
     private static void doNotRunOnTravis() { // Unless we know how to have a good ANDROID_HOME env var on travis.
         String res = System.getenv("TRAVIS")
         if (res != null) {
-            Assume.assumeFalse(res == "true");
+            Assume.assumeFalse(res == "true")
         }
     }
 }
