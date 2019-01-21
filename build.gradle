@@ -20,6 +20,7 @@ apply plugin: 'com.github.ben-manes.versions'
 apply plugin: 'com.gradle.plugin-publish'
 apply plugin: 'com.vanniktech.android.junit.jacoco'
 apply plugin: "com.vanniktech.maven.publish"
+apply plugin: 'maven-publish'
 
 gradlePlugin {
   plugins {
@@ -64,4 +65,21 @@ pluginBundle {
 task wrapper(type: Wrapper) {
   gradleVersion = '4.10.1'
   distributionType = Wrapper.DistributionType.ALL
+}
+
+// Using :publishToMavenLocal will put the jar in $home/.m2 repo
+publishing {
+  publications {
+    art(MavenPublication) {
+      groupId = GROUP
+      artifactId = POM_ARTIFACT_ID
+
+      //artifact jar
+      from components.java
+    }
+  }
+}
+
+tasks.named("publishToMavenLocal") .configure {
+  dependsOn assemble
 }

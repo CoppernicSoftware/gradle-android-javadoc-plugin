@@ -144,8 +144,14 @@ class Generation implements Plugin<Project> {
 
             // Fix issue : Error: Can not create variant 'android-lint' after configuration ': library: debugRuntimeElements' has been resolved
             doFirst {
-                classpath = project.files(variant.javaCompileProvider.get().classpath.files,
-                        project.android.getBootClasspath())
+                try {
+                    classpath = project.files(variant.javaCompileProvider.get().classpath.files,
+                            project.android.getBootClasspath())
+                } catch (Exception ignored) {
+                    // Old API
+                    classpath = project.files(variant.javaCompile.classpath.files,
+                            project.android.getBootClasspath())
+                }
             }
 
             if (JavaVersion.current().isJava8Compatible()) {
