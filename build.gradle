@@ -20,7 +20,7 @@ apply plugin: 'com.github.ben-manes.versions'
 apply plugin: 'com.gradle.plugin-publish'
 apply plugin: 'com.vanniktech.android.junit.jacoco'
 //apply plugin: "com.vanniktech.maven.publish"
-//apply plugin: 'maven-publish'
+apply plugin: 'maven-publish'
 
 repositories {
   mavenCentral()
@@ -56,22 +56,11 @@ pluginBundle {
   }
 }
 
-/*gradlePlugin {
-  plugins {
-    androidJavadocPlugin {
-      id = 'fr.coppernic.android.javadoc'
-      displayName = POM_NAME
-      description = POM_DESCRIPTION
-      implementationClass = 'com.vanniktech.android.javadoc.Generation'
-    }
-  }
-}*/
-
 task wrapper(type: Wrapper) {
   gradleVersion = '4.10.1'
   distributionType = Wrapper.DistributionType.ALL
 }
-/*
+
 
 // Using :publishToMavenLocal will put the jar in $home/.m2 repo
 publishing {
@@ -89,4 +78,3 @@ publishing {
 tasks.named("publishToMavenLocal") .configure {
   dependsOn assemble
 }
-*/

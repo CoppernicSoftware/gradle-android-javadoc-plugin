@@ -139,19 +139,14 @@ class Generation implements Plugin<Project> {
             description = "Generates javadoc for $variant.name variant."
             group = 'Documentation'
 
+            failOnError false
+
             destinationDir = getJavadocFolder(project, variant)
-            source = variant.sourceSets.collect { it.java.sourceFiles }.inject { m, i -> m + i }
+            source = getJavaSourcesForVariant(project, variant)
 
             // Fix issue : Error: Can not create variant 'android-lint' after configuration ': library: debugRuntimeElements' has been resolved
             doFirst {
-                try {
-                    classpath = project.files(variant.javaCompileProvider.get().classpath.files,
-                            project.android.getBootClasspath())
-                } catch (Exception ignored) {
-                    // Old API
-                    classpath = project.files(variant.javaCompile.classpath.files,
-                            project.android.getBootClasspath())
-                }
+                classpath = getJavaClasspathForVariant(project, variant)
             }
 
             if (JavaVersion.current().isJava8Compatible()) {
@@ -221,5 +216,25 @@ class Generation implements Plugin<Project> {
             logger.debug ignored.toString()
         }
         return ret
+    }
+
+    private static def getJavaSourcesForVariant(final Project project, variant) {
+        //println "${variant.javaCompileProvider.get().sources.getFiles()}"
+        def d = variant.sourceSets.collect { it.java.sourceFiles }.inject { m, i -> m + i }
+        //println "${d}"
+        return d
+    }
+
+    private static def getJavaClasspathForVariant(final Project project, variant) {
+        def classpath
+        try {
+            classpath = project.files(variant.javaCompileProvider.get().classpath.files,
+                    project.android.getBootClasspath())
+        } catch (Exception ignored) {
+            // Old API
+            classpath = project.files(variant.javaCompile.classpath.files,
+                    project.android.getBootClasspath())
+        }
+        return classpath
     }
 }
